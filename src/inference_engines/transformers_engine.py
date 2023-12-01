@@ -135,6 +135,7 @@ class TransformersEngine(Engine):
         top_p: float = 0.9,
         top_k: int = 50,
         stop_sequences: Optional[List[str]] = None,
+        exponential_decay_length_penalty: Optional[Tuple[float, int]] = None,
         **kwargs,
     ):
         tokens_in = self.tokenizer(prompt, return_tensors="pt").input_ids.to(
@@ -165,6 +166,10 @@ class TransformersEngine(Engine):
             top_k=top_k,
             stopping_criteria=stopping_criteria_list,
         )
+        if exponential_decay_length_penalty:
+            generate_kwargs[
+                "exponential_decay_length_penalty"
+            ] = exponential_decay_length_penalty
 
         t = Thread(target=self.model.generate, kwargs=generate_kwargs)
         t.start()

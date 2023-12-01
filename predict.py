@@ -151,8 +151,21 @@ class Predictor(BasePredictor):
             description="Path to fine-tuned weights produced by a Replicate fine-tune job.",
             default=None,
         ),
+        exponential_decay_start: int = Input(
+            description="Number of tokens to wait before starting exponential decay.",
+            default=None,
+        ),
+        exponential_decay_factor: float = Input(
+            description="Decay factor for LogitProcessor exponential decay.",
+            default=None,
+        ),
     ) -> ConcatenateIterator[str]:
         with delay_prints() as print:
+            if exponential_decay_start and exponential_decay_factor:
+                exponential_decay_length_penalty = (
+                    exponential_decay_start,
+                    exponential_decay_factor,
+                )
             if stop_sequences:
                 stop_sequences = stop_sequences.split(",")
 
@@ -204,6 +217,7 @@ class Predictor(BasePredictor):
                 max_new_tokens=max_new_tokens,
                 min_new_tokens=min_new_tokens,
                 stop_sequences=stop_sequences,
+                exponential_decay_length_penalty=exponential_decay_length_penalty,  # this is probably going to break on anything except transformers engine
             ):
                 n_tokens += 1
                 yield decoded_token
