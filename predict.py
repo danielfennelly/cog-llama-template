@@ -118,11 +118,11 @@ class Predictor(BasePredictor):
             le=1.0,
             default=0.95,
         ),
-        top_k: int = Input(
-            description="When decoding text, samples from the top k most likely tokens; lower to ignore less likely tokens",
-            ge=-1,
-            default=-1,
-        ),
+        # top_k: int = Input(
+        #     description="When decoding text, samples from the top k most likely tokens; lower to ignore less likely tokens",
+        #     ge=-1,
+        #     default=-1,
+        # ),
         repetition_penalty: float = Input(
             description="A parameter that controls how repetitive text can be. Lower means more repetitive, while higher means less repetitive. Set to 1.0 to disable.",
             ge=0.0,
@@ -161,6 +161,7 @@ class Predictor(BasePredictor):
         ),
     ) -> ConcatenateIterator[str]:
         with delay_prints() as print:
+            exponential_decay_length_penalty = None
             if exponential_decay_start and exponential_decay_factor:
                 exponential_decay_length_penalty = (
                     exponential_decay_start,
@@ -212,7 +213,7 @@ class Predictor(BasePredictor):
                 prompt,
                 temperature=temperature,
                 top_p=top_p,
-                top_k=top_k,
+                # top_k=top_k,
                 repetition_penalty=repetition_penalty,
                 max_new_tokens=max_new_tokens,
                 min_new_tokens=min_new_tokens,
